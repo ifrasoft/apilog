@@ -18,7 +18,7 @@ var logPath = defaultLogPath
 const (
 	logFmtInfo = "TIMESTAMP|%s|LOG_TYPE|%s|IP|%s|URI|%s|REQUEST_ID|%s|SESSION_ID|%s|TRAN_ID|%s|METHOD|%s|REQUEST_PARAM|%s|RESPONSE_PARAM|%s|RESULT|%s|RESULT_CODE|%s|RESP_TIME|%d"
 	logFmtService = "TIMESTAMP|%s|LOG_TYPE|%s|NODE|%s|REQUEST_ID|%s|TRAN_ID|%s|USER_ID|%s|ACTION|%s|COMMAND|%s|REQUEST_PARAM|%s|RESPONSE_PARAM|%s|RESULT|%s|RESULT_CODE|%s|RESULT_DESC|%s|RESP_TIME|%s"
-	logFmtSummary = "TIMESTAMP|%s|RESP_TIME|%s|TID|%s|MSISDN|%s|FBBID|%s|NTYPE|%s|URI|%s|DESCRIPTION|%s|ACTION"
+	logFmtSummary = "TIMESTAMP|%s|RESP_TIME|%s|TID|%s|MSISDN|%s|FBBID|%s|NTYPE|%s|URI|%s|DESCRIPTION|%s|ACTION|%s"
 )
 
 // LOG_TYPE values.
@@ -106,8 +106,7 @@ func InfoError(ip, uri, reqID, sessionID, tranID, method string, reqBody, respBo
 }
 
 // service used for logging outgoing requests.
-func service(logType, node, reqID, tranID, usrID, action, cmd string, reqBody, respBody interface{}, result, resCode string) {
-	// TODO: Implement.
+func service(logType, node, reqID, tranID, usrID, action, cmd string, reqBody, respBody interface{}, result, resCode, resDesc string, respTime time.Time) {
 	reqBodyJsonBytes, _ := json.Marshal(reqBody)
 	respBodyJsonBytes, _ := json.Marshal(respBody)
 
@@ -123,34 +122,60 @@ func service(logType, node, reqID, tranID, usrID, action, cmd string, reqBody, r
 		string(reqBodyJsonBytes),
 		string(respBodyJsonBytes),
 		result,
-		resCode)
+		resCode,
+		resDesc,
+		toMilli(respTime))
 
 	writeln(log, "/service/service.log")
 }
 
 // ServiceSuccess used for logging success outgoing requests.
-func ServiceSuccess() {
-	// TODO: Implement.
-	log := fmt.Sprintf(logFmtService,
-		timestamp(),
-		logTypeInfo)
-	writeln(log, "/service")
+func ServiceSuccess(node, reqID, tranID, usrID, action, cmd string, reqBody, respBody interface{}, resCode, resDesc string, respTime time.Time) {
+	service(logTypeInfo,
+	node,
+	reqID,
+	tranID,
+	usrID,
+	action,
+	cmd,
+	reqBody,
+	respBody,
+	resultSuccess,
+	resCode,
+	resDesc,
+	respTime)
 }
 
 // ServiceError used for logging failed outgoing requests.
-func ServiceError() {
-	// TODO: Implement.
-	log := fmt.Sprintf(logFmtService,
-		timestamp(),
-		logTypeError)
-	writeln(log, "/service")
+func ServiceError(node, reqID, tranID, usrID, action, cmd string, reqBody, respBody interface{}, resCode, resDesc string, respTime time.Time) {
+	service(logTypeError,
+		node,
+		reqID,
+		tranID,
+		usrID,
+		action,
+		cmd,
+		reqBody,
+		respBody,
+		resultError,
+		resCode,
+		resDesc,
+		respTime)
 }
 
 // Summary used for incoming request, outgoing request, and outgoing response.
-func Summary() {
-	// TODO: Implement.
+func Summary(respTime time.Time, tranID, msisdn, fbbID, netwkType, uri, desc, action string) {
 	log := fmt.Sprintf(logFmtSummary,
-		timestamp())
+		timestamp(),
+		toMilli(respTime),
+		tranID,
+		msisdn,
+		fbbID,
+		netwkType,
+		uri,
+		desc,
+		action)
+
 	writeln(log, "/summary/sum.log")
 }
 
@@ -158,7 +183,7 @@ func Summary() {
 //
 // fdName may omit leading "/".
 func writeln(log, filePath string) {
-	// TODO: Implement
+	// TODO: Implement logic for create new log file.
 	pathJoined := path.Join(logPath, filePath)
 	ioutil.WriteFile(pathJoined, []byte(log + "\n"), os.ModePerm)
 }
