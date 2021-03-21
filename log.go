@@ -70,7 +70,7 @@ func info(logType, ip, uri, reqID, sessionID, tranID, method string, reqBody, re
 		resCode,
 		toMilli(respTime))
 
-	writeln(log, "/info")
+	writeln(log, "/info/info.log")
 }
 
 // InfoSuccess used for logging success client (incoming) requests.
