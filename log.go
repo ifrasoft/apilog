@@ -30,7 +30,7 @@ const (
 // RESULT_CODE values.
 const (
 	resultSuccess = "SUCCESS"
-	resultError = "FAILED"
+	resultError = "ERROR"
 )
 
 // SetPath sets path for log files.
