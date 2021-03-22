@@ -3,12 +3,35 @@ package apilog
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/jasonlvhit/gocron"
 	"io/ioutil"
 	"os"
 	"path"
 	"strings"
 	"time"
 )
+
+func init() {
+	infFPCleaned := path.Clean(logPath + infoFilePath)
+	serFPCleaned := path.Clean(logPath + serviceFilePath)
+	sumFPCleaned := path.Clean(logPath + summaryFilePath)
+
+	gocron.Every(1).Second().Do(completeLog(infFPCleaned))
+	gocron.Every(1).Second().Do(completeLog(serFPCleaned))
+	gocron.Every(1).Second().Do(completeLog(sumFPCleaned))
+}
+
+// completeLog returns function that appends current log (if exist) file name
+// with current time when current time minute is 0 or divisible by 15.
+func completeLog(filePath string) func() {
+	return func() {
+		t := time.Now()
+		if t.Minute() == 0 || t.Minute() % 15 == 0 {
+			// TODO: Wait for date format.
+			os.Rename(filePath, filePath + t.Format(""))
+		}
+	}
+}
 
 var timestampFmt = "2006-01-0215:04:05.999"
 var defaultLogPath = "./log"
@@ -17,8 +40,8 @@ var logPath = defaultLogPath
 // Log formats.
 const (
 	logFmtInfo = "TIMESTAMP|%s|LOG_TYPE|%s|IP|%s|URI|%s|REQUEST_ID|%s|SESSION_ID|%s|TRAN_ID|%s|METHOD|%s|REQUEST_PARAM|%s|RESPONSE_PARAM|%s|RESULT|%s|RESULT_CODE|%s|RESP_TIME|%d"
-	logFmtService = "TIMESTAMP|%s|LOG_TYPE|%s|NODE|%s|REQUEST_ID|%s|TRAN_ID|%s|USER_ID|%s|ACTION|%s|COMMAND|%s|REQUEST_PARAM|%s|RESPONSE_PARAM|%s|RESULT|%s|RESULT_CODE|%s|RESULT_DESC|%s|RESP_TIME|%s"
-	logFmtSummary = "TIMESTAMP|%s|RESP_TIME|%s|TID|%s|MSISDN|%s|FBBID|%s|NTYPE|%s|URI|%s|DESCRIPTION|%s|ACTION|%s"
+	logFmtService = "TIMESTAMP|%s|LOG_TYPE|%s|NODE|%s|REQUEST_ID|%s|TRAN_ID|%s|USER_ID|%s|ACTION|%s|COMMAND|%s|REQUEST_PARAM|%s|RESPONSE_PARAM|%s|RESULT|%s|RESULT_CODE|%s|RESULT_DESC|%s|RESP_TIME|%d"
+	logFmtSummary = "TIMESTAMP|%s|RESP_TIME|%d|TID|%s|MSISDN|%s|FBBID|%s|NTYPE|%s|URI|%s|DESCRIPTION|%s|ACTION|%s"
 )
 
 // LOG_TYPE values.
@@ -31,6 +54,13 @@ const (
 const (
 	resultSuccess = "SUCCESS"
 	resultError = "ERROR"
+)
+
+// Relative log file paths.
+const (
+	infoFilePath = "/info/log.info"
+	serviceFilePath = "/service/log.service"
+	summaryFilePath = "/summary/log.sum"
 )
 
 // SetPath sets path for log files.
@@ -70,7 +100,7 @@ func info(logType, ip, uri, reqID, sessionID, tranID, method string, reqBody, re
 		resCode,
 		toMilli(respTime))
 
-	writeln(log, "/info/info.log")
+	writeln(log, infoFilePath)
 }
 
 // InfoSuccess used for logging success client (incoming) requests.
@@ -126,7 +156,7 @@ func service(logType, node, reqID, tranID, usrID, action, cmd string, reqBody, r
 		resDesc,
 		toMilli(respTime))
 
-	writeln(log, "/service/service.log")
+	writeln(log, serviceFilePath)
 }
 
 // ServiceSuccess used for logging success outgoing requests.
@@ -176,14 +206,13 @@ func Summary(respTime time.Time, tranID, msisdn, fbbID, netwkType, uri, desc, ac
 		desc,
 		action)
 
-	writeln(log, "/summary/sum.log")
+	writeln(log, summaryFilePath)
 }
 
 // writeln writes log to file in path.
 //
 // fdName may omit leading "/".
 func writeln(log, filePath string) {
-	// TODO: Implement logic for create new log file.
 	pathJoined := path.Join(logPath, filePath)
 	ioutil.WriteFile(pathJoined, []byte(log + "\n"), os.ModePerm)
 }
