@@ -27,8 +27,7 @@ func completeLog(filePath string) func() {
 	return func() {
 		t := time.Now()
 		if t.Minute() == 0 || t.Minute() % 15 == 0 {
-			// TODO: Wait for date format.
-			os.Rename(filePath, filePath + t.Format(""))
+			os.Rename(filePath, filePath + t.Format("20060102_0304"))
 		}
 	}
 }
