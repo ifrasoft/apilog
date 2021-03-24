@@ -1,4 +1,4 @@
-# AIS API Log
+# API API Log
 
 There are 3 types of logs
 1. Info
