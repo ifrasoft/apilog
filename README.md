@@ -1,3 +1,9 @@
+# Installation
+`go get -u github.com/ifrasoft/apilog`
+
+# Quickstart
+`TODO: Add example usage.`
+
 # API Log
 
 There are 3 types of logs
