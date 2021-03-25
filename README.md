@@ -2,7 +2,34 @@
 `go get -u github.com/ifrasoft/apilog`
 
 # Quickstart
-`TODO: Add example usage.`
+
+```go
+package main
+
+import (
+	"github.com/ifrasoft/apilog"
+	"time"
+)
+
+func main() {
+	respBody := make(map[string]string)
+	respBody["message"] = "pong"
+	respBody["resultCode"] = "20000"
+	respTime := time.Duration(2000000)
+	
+	apilog.InfoSuccess("192.168.1.1",
+		"http://localhost:9091/ping",
+		"111111111",
+		"222222222",
+		"333333333",
+		"GET",
+		nil,
+		respBody,
+		respBody["resultCode"],
+		respTime)
+}
+
+```
 
 # API Log
 
