@@ -79,7 +79,7 @@ func toMilli(t time.Time) int64 {
 }
 
 // info user for logging client (incoming) requests.
-func info(logType, ip, uri, reqID, sessionID, tranID, method string, reqBody, respBody interface{}, result, resCode string, respTime time.Time) {
+func info(logType, ip, uri, reqID, sessionID, tranID, method string, reqBody, respBody interface{}, result, resCode string, respTime time.Duration) {
 	reqBodyJsonBytes, _ := json.Marshal(reqBody)
 	respBodyJsonBytes, _ := json.Marshal(respBody)
 
@@ -96,13 +96,13 @@ func info(logType, ip, uri, reqID, sessionID, tranID, method string, reqBody, re
 		string(respBodyJsonBytes),
 		result,
 		resCode,
-		toMilli(respTime))
+		respTime.Milliseconds())
 
 	writeln(log, infoFilePath)
 }
 
 // InfoSuccess used for logging success client (incoming) requests.
-func InfoSuccess(ip, uri, reqID, sessionID, tranID, method string, reqBody, respBody interface{}, resCode string, respTime time.Time) {
+func InfoSuccess(ip, uri, reqID, sessionID, tranID, method string, reqBody, respBody interface{}, resCode string, respTime time.Duration) {
 	info(logTypeInfo,
 		ip,
 		uri,
@@ -118,7 +118,7 @@ func InfoSuccess(ip, uri, reqID, sessionID, tranID, method string, reqBody, resp
 }
 
 // InfoError used for logging failed client (incoming) requests.
-func InfoError(ip, uri, reqID, sessionID, tranID, method string, reqBody, respBody interface{}, resCode string, respTime time.Time) {
+func InfoError(ip, uri, reqID, sessionID, tranID, method string, reqBody, respBody interface{}, resCode string, respTime time.Duration) {
 	info(logTypeError,
 		ip,
 		uri,
@@ -134,7 +134,7 @@ func InfoError(ip, uri, reqID, sessionID, tranID, method string, reqBody, respBo
 }
 
 // service used for logging outgoing requests.
-func service(logType, node, reqID, tranID, usrID, action, cmd string, reqBody, respBody interface{}, result, resCode, resDesc string, respTime time.Time) {
+func service(logType, node, reqID, tranID, usrID, action, cmd string, reqBody, respBody interface{}, result, resCode, resDesc string, respTime time.Duration) {
 	reqBodyJsonBytes, _ := json.Marshal(reqBody)
 	respBodyJsonBytes, _ := json.Marshal(respBody)
 
@@ -152,13 +152,13 @@ func service(logType, node, reqID, tranID, usrID, action, cmd string, reqBody, r
 		result,
 		resCode,
 		resDesc,
-		toMilli(respTime))
+		respTime.Milliseconds())
 
 	writeln(log, serviceFilePath)
 }
 
 // ServiceSuccess used for logging success outgoing requests.
-func ServiceSuccess(node, reqID, tranID, usrID, action, cmd string, reqBody, respBody interface{}, resCode, resDesc string, respTime time.Time) {
+func ServiceSuccess(node, reqID, tranID, usrID, action, cmd string, reqBody, respBody interface{}, resCode, resDesc string, respTime time.Duration) {
 	service(logTypeInfo,
 	node,
 	reqID,
@@ -175,7 +175,7 @@ func ServiceSuccess(node, reqID, tranID, usrID, action, cmd string, reqBody, res
 }
 
 // ServiceError used for logging failed outgoing requests.
-func ServiceError(node, reqID, tranID, usrID, action, cmd string, reqBody, respBody interface{}, resCode, resDesc string, respTime time.Time) {
+func ServiceError(node, reqID, tranID, usrID, action, cmd string, reqBody, respBody interface{}, resCode, resDesc string, respTime time.Duration) {
 	service(logTypeError,
 		node,
 		reqID,
