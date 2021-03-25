@@ -73,11 +73,6 @@ func timestamp() string {
 	return time.Now().Format(timestampFmt)
 }
 
-// toMilli returns time in milliseconds.
-func toMilli(t time.Time) int64 {
-	return t.UnixNano() / 1e6
-}
-
 // info user for logging client (incoming) requests.
 func info(logType, ip, uri, reqID, sessionID, tranID, method string, reqBody, respBody interface{}, result, resCode string, respTime time.Duration) {
 	reqBodyJsonBytes, _ := json.Marshal(reqBody)
@@ -192,10 +187,10 @@ func ServiceError(node, reqID, tranID, usrID, action, cmd string, reqBody, respB
 }
 
 // Summary used for incoming request, outgoing request, and outgoing response.
-func Summary(respTime time.Time, tranID, msisdn, fbbID, netwkType, uri, desc, action string) {
+func Summary(respTime time.Duration, tranID, msisdn, fbbID, netwkType, uri, desc, action string) {
 	log := fmt.Sprintf(logFmtSummary,
 		timestamp(),
-		toMilli(respTime),
+		respTime.Milliseconds(),
 		tranID,
 		msisdn,
 		fbbID,
