@@ -4,17 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/jasonlvhit/gocron"
-	"io/ioutil"
 	"os"
-	"path"
+	"path/filepath"
 	"strings"
 	"time"
 )
 
 func init() {
-	infFPCleaned := path.Clean(logPath + infoFilePath)
-	serFPCleaned := path.Clean(logPath + serviceFilePath)
-	sumFPCleaned := path.Clean(logPath + summaryFilePath)
+	infFPCleaned := filepath.Clean(logPath + infoFilePath)
+	serFPCleaned := filepath.Clean(logPath + serviceFilePath)
+	sumFPCleaned := filepath.Clean(logPath + summaryFilePath)
 
 	gocron.Every(1).Second().Do(completeLog(infFPCleaned))
 	gocron.Every(1).Second().Do(completeLog(serFPCleaned))
@@ -66,7 +65,7 @@ const (
 //
 // If not set, use default path "./logs".
 func SetPath(p string) {
-	logPath = path.Clean(p)
+	logPath = filepath.Clean(p)
 }
 
 // timestamp returns current time in "2006-01-0215:04:05.999" format.
@@ -210,6 +209,14 @@ func Summary(respTime time.Time, tranID, msisdn, fbbID, netwkType, uri, desc, ac
 
 // writeln writes log to file in path.
 func writeln(log, filePath string) {
-	pathJoined := path.Join(logPath, filePath)
-	ioutil.WriteFile(pathJoined, []byte(log + "\n"), os.ModePerm)
+	absPath, _ := filepath.Abs(logPath)
+	fpJoined := filepath.Join(absPath, filePath)
+	dirPath := filepath.Dir(fpJoined)
+	// Create directory if not exists.
+	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
+		os.MkdirAll(dirPath, os.ModePerm)
+	}
+	f, _ := os.OpenFile(fpJoined, os.O_APPEND|os.O_WRONLY|os.O_CREATE, os.ModePerm)
+	defer f.Close()
+	f.WriteString(log + "\n")
 }
