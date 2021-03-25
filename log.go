@@ -207,7 +207,7 @@ func writeln(log, filePath string) {
 	absPath, _ := filepath.Abs(logPath)
 	fpJoined := filepath.Join(absPath, filePath)
 	dirPath := filepath.Dir(fpJoined)
-	// Create directory if not exists.
+	// Create directory if not exist.
 	if _, err := os.Stat(dirPath); os.IsNotExist(err) {
 		os.MkdirAll(dirPath, os.ModePerm)
 	}
