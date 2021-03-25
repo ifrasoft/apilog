@@ -209,8 +209,6 @@ func Summary(respTime time.Time, tranID, msisdn, fbbID, netwkType, uri, desc, ac
 }
 
 // writeln writes log to file in path.
-//
-// fdName may omit leading "/".
 func writeln(log, filePath string) {
 	pathJoined := path.Join(logPath, filePath)
 	ioutil.WriteFile(pathJoined, []byte(log + "\n"), os.ModePerm)
