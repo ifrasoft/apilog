@@ -1,7 +1,6 @@
 package apilog
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/jasonlvhit/gocron"
 	"os"
@@ -75,9 +74,6 @@ func timestamp() string {
 
 // info user for logging client (incoming) requests.
 func info(logType, ip, uri, reqID, sessionID, tranID, method string, reqBody, respBody interface{}, result, resCode string, respTime time.Duration) {
-	reqBodyJsonBytes, _ := json.Marshal(reqBody)
-	respBodyJsonBytes, _ := json.Marshal(respBody)
-
 	log := fmt.Sprintf(logFmtInfo,
 		timestamp(),
 		logType,
@@ -87,8 +83,8 @@ func info(logType, ip, uri, reqID, sessionID, tranID, method string, reqBody, re
 		sessionID,
 		tranID,
 		strings.ToUpper(method),
-		string(reqBodyJsonBytes),
-		string(respBodyJsonBytes),
+		fmt.Sprintf("%#v", reqBody),
+		fmt.Sprintf("%#v", respBody),
 		result,
 		resCode,
 		respTime.Milliseconds())
@@ -130,9 +126,6 @@ func InfoError(ip, uri, reqID, sessionID, tranID, method string, reqBody, respBo
 
 // service used for logging outgoing requests.
 func service(logType, node, reqID, tranID, usrID, action, cmd string, reqBody, respBody interface{}, result, resCode, resDesc string, respTime time.Duration) {
-	reqBodyJsonBytes, _ := json.Marshal(reqBody)
-	respBodyJsonBytes, _ := json.Marshal(respBody)
-
 	log := fmt.Sprintf(logFmtService,
 		timestamp(),
 		logType,
@@ -142,8 +135,8 @@ func service(logType, node, reqID, tranID, usrID, action, cmd string, reqBody, r
 		usrID,
 		action,
 		cmd,
-		string(reqBodyJsonBytes),
-		string(respBodyJsonBytes),
+		fmt.Sprintf("%#v", reqBody),
+		fmt.Sprintf("%#v", respBody),
 		result,
 		resCode,
 		resDesc,
